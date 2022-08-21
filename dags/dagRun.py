@@ -8,7 +8,6 @@ from io import BytesIO
 import boto3
 import datetime
 from airflow.models import DAG
-from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 import psycopg2
@@ -71,10 +70,27 @@ def call_api(ti):
                     )
     
     ti.xcom_push(key='filename', value=filename)
- 
- 
- 
- 
+   
+   
+def load_to_redshift(ti):
+    
+    dbname = ''
+    host =  ''
+    port = ''
+    user = ''
+    password = ''
+    awsIAMrole = ''
+
+    
+    conn = psycopg2.connect(dbname= dbname, host=host, port= port, user= user, password= password)
+    cursor = conn.cursor()
+    
+    sql = f"""sql"""
+                  
+    cursor.execute(sql)
+    conn.commit()
+    cursor.close()
+    conn.close()
     
 defaultArgs = {
     'owner': 'Quinn_Cummings',
@@ -98,4 +114,8 @@ with DAG('analyze_json_data',
         python_callable = run_spark
     )
     
-    getData >> processData
+    loadRedshift = PythonOperator(
+        task_id = 'loadRedshift',
+        python_callable = load_to_redshift
+    )
+    getData >> processData >> loadRedshift
