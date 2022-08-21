@@ -40,7 +40,7 @@ def run_spark(ti):
     df.show(10)
     
     csv_buffer = StringIO()
-    df.toPandas().to_csv(csv_buffer)
+    df.toPandas().to_csv(csv_buffer, index = False)
     hook = S3Hook()
     hook.load_string (string_data = csv_buffer.getvalue(),
                     key = filename,

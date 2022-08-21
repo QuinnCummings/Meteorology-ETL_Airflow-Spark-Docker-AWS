@@ -57,9 +57,9 @@ def call_api(ti):
         'wind_speed' : wind_speed
     }
     df = pd.DataFrame(df_structure)
-    df.to_csv(r'/opt/airflow/sparkFiles/parsedData.csv')
+    df.to_csv(r'/opt/airflow/sparkFiles/parsedData.csv', index = False)
     csv_buffer = StringIO()
-    df.to_csv(csv_buffer)
+    df.to_csv(csv_buffer, index = False)
     
     hook = S3Hook()
     filename = 'meteo_data_{}.csv'.format(j['init'])
@@ -73,19 +73,22 @@ def call_api(ti):
    
    
 def load_to_redshift(ti):
-    
+    filename = ti.xcom_pull(key='filename', task_ids=['getData'])[0]
     dbname = ''
     host =  ''
     port = ''
     user = ''
     password = ''
     awsIAMrole = ''
-
     
     conn = psycopg2.connect(dbname= dbname, host=host, port= port, user= user, password= password)
     cursor = conn.cursor()
     
-    sql = f"""sql"""
+    sql = f"""COPY mytable FROM 's3://meteo-data-transformed/{filename}' 
+                  iam_role '{awsIAMrole}' 
+                  DELIMITER AS ',' 
+                  NULL AS ''
+                  IGNOREHEADER 1 ;"""
                   
     cursor.execute(sql)
     conn.commit()
