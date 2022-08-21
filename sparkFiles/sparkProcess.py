@@ -1,7 +1,9 @@
 from pyspark.sql import SparkSession
+from airflow.providers.amazon.aws.hooks.s3 import S3Hook
+from io import StringIO
 
 def run_spark(ti):
-    filename = ti.xcom_pull(key='filename', task_ids=['getData'])
+    filename = ti.xcom_pull(key='filename', task_ids=['getData'])[0]
     dataset = r'/opt/airflow/sparkFiles/parsedData.csv'
     
     spark = SparkSession \
@@ -36,4 +38,13 @@ def run_spark(ti):
     df= spark.sql(transform_query)
 
     df.show(10)
+    
+    csv_buffer = StringIO()
+    df.toPandas().to_csv(csv_buffer)
+    hook = S3Hook()
+    hook.load_string (string_data = csv_buffer.getvalue(),
+                    key = filename,
+                    bucket_name = 'meteo-data-transformed',
+                    replace = True
+                    )
 
