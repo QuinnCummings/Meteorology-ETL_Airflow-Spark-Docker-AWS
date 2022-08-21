@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
 
-def run_spark():
-    
+def run_spark(ti):
+    filename = ti.xcom_pull(key='filename', task_ids=['getData'])
     dataset = r'/opt/airflow/sparkFiles/parsedData.csv'
     
     spark = SparkSession \
@@ -36,4 +36,4 @@ def run_spark():
     df= spark.sql(transform_query)
 
     df.show(10)
-run_spark()
+

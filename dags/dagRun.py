@@ -12,8 +12,11 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 import psycopg2
+import sys
+sys.path.insert(0, '/opt/airflow/sparkFiles')
+from sparkProcess import run_spark
 
-def call_api():
+def call_api(ti):
     '''Collects data from time7 api
     Args: bucket?
     Returns: None
@@ -66,7 +69,8 @@ def call_api():
                     bucket_name = 'meteo-data',
                     replace = True
                     )
- 
+    
+    ti.xcom_push(key='filename', value=filename)
  
  
  
@@ -89,9 +93,9 @@ with DAG('analyze_json_data',
         python_callable = call_api
     )
 
-    processData = BashOperator(
+    processData = PythonOperator(
         task_id='processData',
-        bash_command='python /opt/airflow/sparkFiles/sparkProcess.py'
+        python_callable = run_spark
     )
     
     getData >> processData
