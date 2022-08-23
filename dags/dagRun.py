@@ -115,7 +115,7 @@ defaultArgs = {
     'retries': 3,
     'retry_delay': datetime.timedelta(seconds=30)
 }
-with DAG('analyze_json_data',
+with DAG('api_to_redshift',
          schedule_interval = '@daily',
          default_args = defaultArgs,
          catchup = False) as dag:
