@@ -32,6 +32,11 @@ Start running Airflow on Docker using the following command:
 
     docker-compose up -d
 
-You can now access Airflow at **localhost:8080** and run dags
+Once the Airflow conatiners are healthy and running can now access Airflow at **localhost:8080** and login with:
+
+    User: Airflow
+    Password: Airflow
+    
+Now you can use airflow to execute and schedule the **api_to_redshift** dag!
 
 ![Capture2](https://user-images.githubusercontent.com/28849195/186057805-605c5959-e726-4170-9773-2c0baf006a58.PNG)
